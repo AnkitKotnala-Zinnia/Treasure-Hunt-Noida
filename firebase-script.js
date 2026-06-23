@@ -1,7 +1,7 @@
 // 🔥 Firebase-Enabled Treasure Hunt Game
 // This version enables real-time multi-device data sharing
 
-// Initialize Firebase with config from firebase-config.js
+// Initialize Firebase with the deployment config.
 const firebaseConfig = {
     apiKey: "AIzaSyBIQOS2BBchpiZK6uCB6rzb5ISxUwgJpVM",
     authDomain: "tresure-hunt--26.firebaseapp.com",

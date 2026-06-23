@@ -82,42 +82,39 @@ def create_qr_code_with_label(url, label, filename):
 
 def main():
     # 🚨 YOUR GITHUB PAGES URL
-    base_url = "https://tusharzinnia07.github.io/treasure-hunt-deploy"
+    base_url = "https://ankitkotnala-zinnia.github.io/Treasure-Hunt-Noida"
     
     print("🎯 Generating QR Codes for Treasure Hunt Game")
     print("=" * 50)
     print(f"🌐 Your GitHub Pages URL: {base_url}")
     print()
     
-    # Create output directory
-    os.makedirs("qr_codes", exist_ok=True)
-    
     # Define the 4 basic QR codes (teams enter their ID manually)
     tasks = [
         {
             "url": f"{base_url}/task1.html",
             "label": "Task 1 - Start Your Hunt!", 
-            "filename": "qr_codes/task1_qr.png"
+            "filename": "task1_qr.png"
         },
         {
             "url": f"{base_url}/task2.html",
             "label": "Task 2 - Second Clue", 
-            "filename": "qr_codes/task2_qr.png"
+            "filename": "task2_qr.png"
         },
         {
             "url": f"{base_url}/task3.html",
             "label": "Task 3 - Third Clue", 
-            "filename": "qr_codes/task3_qr.png"
+            "filename": "task3_qr.png"
         },
         {
             "url": f"{base_url}/task4.html",
             "label": "Task 4 - Fourth Challenge", 
-            "filename": "qr_codes/task4_qr.png"
+            "filename": "task4_qr.png"
         },
         {
             "url": f"{base_url}/task5.html",
             "label": "Task 5 - WINNER!", 
-            "filename": "qr_codes/task5_qr.png"
+            "filename": "task5_qr.png"
         }
     ]
     
@@ -129,7 +126,7 @@ def main():
         create_qr_code_with_label(task["url"], task["label"], task["filename"])
     
     print("\n🎉 All QR codes generated successfully!")
-    print("📁 Check the 'qr_codes' folder for your QR code images")
+    print("📁 Updated task1_qr.png through task5_qr.png in this folder")
     print()
     print("📋 GAME INSTRUCTIONS:")
     print("=" * 50)
