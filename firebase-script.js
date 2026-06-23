@@ -737,6 +737,9 @@ function showQrGateError(taskNumber) {
         section.style.display = 'none';
     });
 
+    const navigation = document.querySelector('.navigation');
+    if (navigation) navigation.style.display = 'none';
+
     if (document.getElementById('qrGateError')) return;
 
     const taskHeader = document.querySelector('.task-header');
