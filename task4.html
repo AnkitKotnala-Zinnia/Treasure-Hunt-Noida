@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task 4 - Pride Treasure Hunt</title>
-    <link rel="stylesheet" href="style.css?v=4">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- 🔥 Firebase SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -16,14 +16,14 @@
 <body>
     <div class="container">
         <div class="task-header">
-            <h1><span class="rainbow-icon" aria-hidden="true"></span> Task 4 - Fourth Challenge</h1>
+            <h1><span class="rainbow-icon" aria-hidden="true"></span>Task 4 - Fourth Challenge</h1>
             <div class="progress-bar">
                 <div class="progress" style="width: 80%;"></div>
             </div>
         </div>
         
         <div class="verification-section">
-            <h2>🔐 Verification Required</h2>
+            <h2>Verification Required</h2>
             <div class="form-group">
                 <label for="teamId4">Team ID:</label>
                 <input type="text" id="teamId4" style="text-transform: uppercase;">
@@ -36,24 +36,24 @@
         </div>
         
         <div class="clue-section" id="clueSection4" style="display: none;">
-            <h2>🎉 Welcome Team <span id="teamDisplayName">TEAM</span>!</h2>
-            <h2>🧩 Your Fourth Clue:</h2>
+            <h2>Welcome Team <span id="teamDisplayName">TEAM</span>!</h2>
+            <h2>Your Fourth Clue:</h2>
             <div class="clue-box">
                 <p>"शब्दों की दुनिया से अब बाहर आओ, अब थोड़ा आराम भी तो मनाओ। जहाँ पेट भरता है और मन मुस्काता है, वहीं मेहनत का असली फल तुम्हारा इंतज़ार करता है।"</p>
             </div>
             
             <div class="task-code-section">
-                <h3>📝 Task Code to Remember:</h3>
+                <h3>Task Code to Remember:</h3>
                 <div class="task-code">TC200</div>
                 <p class="task-note">Remember this code for the FINAL task!</p>
             </div>
             
-            <button onclick="completeTask4()" id="completeBtn4" class="btn-success">✅ Mark Task 4 Complete</button>
+            <button onclick="completeTask4()" id="completeBtn4" class="btn-success">Mark Task 4 Complete</button>
         </div>
         
         <div class="navigation">
-            <button onclick="goHome()" class="btn-secondary">🏠 Home</button>
-            <button onclick="goToAdmin()" class="btn-admin">📊 View Results</button>
+            <button onclick="goHome()" class="btn-secondary">Home</button>
+            <button onclick="goToAdmin()" class="btn-admin">View Results</button>
         </div>
     </div>
     
@@ -83,7 +83,7 @@
                     // Already completed Task 4
                     document.getElementById('clueSection4').style.display = 'block';
                     document.getElementById('teamDisplayName').textContent = teamId;
-                    document.getElementById('completeBtn4').textContent = '✅ Task 4 Completed!';
+                    document.getElementById('completeBtn4').textContent = 'Task 4 Completed!';
                     document.getElementById('completeBtn4').disabled = true;
                     document.getElementById('completeBtn4').style.opacity = '0.7';
                 }

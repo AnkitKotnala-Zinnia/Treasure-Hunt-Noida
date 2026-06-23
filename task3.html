@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task 3 - Pride Treasure Hunt</title>
-    <link rel="stylesheet" href="style.css?v=4">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- 🔥 Firebase SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -16,14 +16,14 @@
 <body>
     <div class="container">
         <div class="task-header">
-            <h1><span class="rainbow-icon" aria-hidden="true"></span> Task 3</h1>
+            <h1><span class="rainbow-icon" aria-hidden="true"></span>Task 3</h1>
             <div class="progress-bar">
                 <div class="progress" style="width: 75%;"></div>
             </div>
         </div>
         
         <div class="verification-section">
-            <h2>🔐 Verification Required</h2>
+            <h2>Verification Required</h2>
             <div class="form-group">
                 <label for="teamId3">Team ID:</label>
                 <input type="text" id="teamId3" style="text-transform: uppercase;">
@@ -36,14 +36,14 @@
         </div>
         
         <div class="clue-section" id="clueSection3" style="display: none;">
-            <h2>🎉 Welcome Team <span id="teamDisplayName">TEAM</span>!</h2>
-            <h2>🧩 Your Clue:</h2>
+            <h2>Welcome Team <span id="teamDisplayName">TEAM</span>!</h2>
+            <h2>Your Clue:</h2>
             <div class="clue-box">
                 <p>"जहाँ दीवारें सुनती हैं पर बोलती नहीं, और कुर्सियाँ अक्सर भरी होती हैं। वहाँ फैसले लिखे जाते हैं खामोशी से, सुराग छुपा है उसी जगह की गोपनीयता में।"</p>
             </div>
             
             <div class="task-code-section">
-                <h3>📝 Task Code to Remember:</h3>
+                <h3>Task Code to Remember:</h3>
                 <div class="task-code">TC803</div>
                 <p class="task-note">Remember this code! You'll need it for the final task.</p>
             </div>
@@ -52,7 +52,7 @@
         </div>
         
         <div class="navigation">
-            <button onclick="goHome()" class="btn-secondary">🏠 Home</button>
+            <button onclick="goHome()" class="btn-secondary">Home</button>
         </div>
     </div>
     
@@ -65,7 +65,7 @@
         }
         
         window.onload = async function() {
-            // 🔒 SECURITY: Prevent direct URL access
+            // SECURITY: Prevent direct URL access
             if (!(await blockDirectAccess(3))) {
                 return;
             }
@@ -87,7 +87,7 @@
                     // Already completed Task 3
                     document.getElementById('clueSection3').style.display = 'block';
                     document.getElementById('teamDisplayName').textContent = teamId;
-                    document.getElementById('completeBtn3').textContent = '✅ Task 3 Completed';
+                    document.getElementById('completeBtn3').textContent = 'Task 3 Completed';
                     document.getElementById('completeBtn3').disabled = true;
                     document.getElementById('completeBtn3').style.opacity = '0.7';
                 }

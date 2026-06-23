@@ -1,4 +1,4 @@
-// 🔥 Firebase-Enabled Treasure Hunt Game
+// Firebase-Enabled Treasure Hunt Game
 // This version enables real-time multi-device data sharing
 
 // Initialize Firebase with the deployment config.
@@ -31,13 +31,13 @@ class FirebaseTreasureHunt {
             2: "ना कोई ऑफिस बिना इसके चलता है, और ना ही आगंतुक बिना यहाँ रुके निकलता है। वह जगह जहाँ मुस्कान से स्वागत होता है, वहीं अगला इशारा चुपचाप बैठा होता है।",
             3: "जहाँ दीवारें सुनती हैं पर बोलती नहीं, और कुर्सियाँ अक्सर भरी होती हैं। वहाँ फैसले लिखे जाते हैं खामोशी से, सुराग छुपा है उसी जगह की गोपनीयता में।",
             4: "शब्दों की दुनिया से अब बाहर आओ, अब थोड़ा आराम भी तो मनाओ। जहाँ पेट भरता है और मन मुस्काता है, वहीं मेहनत का असली फल तुम्हारा इंतज़ार करता है.",
-            5: "🎊 CONGRATULATIONS! YOU WON! 🎊"
+            5: "CONGRATULATIONS! YOU WON!"
         };
         
         this.currentTeamId = null;
     }
 
-    // 🔥 Firebase: Set team ID (creates team in Firestore if doesn't exist)
+    // Firebase: Set team ID (creates team in Firestore if doesn't exist)
     async setTeamId(teamId) {
         if (!teamId || teamId.trim() === '') return false;
         
@@ -60,7 +60,7 @@ class FirebaseTreasureHunt {
                     taskHistory: [],
                     status: 'active'
                 });
-                console.log(`🔥 Team ${teamId} created in Firebase`);
+                console.log(`Team ${teamId} created in Firebase`);
             }
             
             // Store current team in localStorage for session
@@ -72,12 +72,12 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Get current team ID
+    // Firebase: Get current team ID
     getCurrentTeamId() {
         return this.currentTeamId || localStorage.getItem('currentTeamId');
     }
 
-    // 🔥 Firebase: Verify task code against Firestore data
+    // Firebase: Verify task code against Firestore data
     async verifyTaskCode(teamId, expectedCode, actualCode) {
         if (!teamId || !actualCode) return false;
         
@@ -112,7 +112,7 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Complete task (updates Firestore)
+    // Firebase: Complete task (updates Firestore)
     async completeTask(taskNumber, teamId = null) {
         teamId = teamId || this.getCurrentTeamId();
         if (!teamId) {
@@ -166,12 +166,12 @@ class FirebaseTreasureHunt {
                 timestamp: regularTimestamp // Fixed: Use regular Date
             });
 
-            console.log(`🔥 Task ${taskNumber} completed for team ${teamId}`);
+            console.log(`Task ${taskNumber} completed for team ${teamId}`);
             
             if (taskNumber === 5) {
-                alert('🏆 Congratulations! You have completed the treasure hunt!');
+                alert('Congratulations! You have completed the treasure hunt!');
             } else {
-                alert(`✅ Task ${taskNumber} completed! Move to the next location.`);
+                alert(`Task ${taskNumber} completed! Move to the next location.`);
             }
             
             return true;
@@ -182,7 +182,7 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Get team progress (real-time)
+    // Firebase: Get team progress (real-time)
     async getTeamProgress(teamId) {
         try {
             const teamRef = db.collection('teams').doc(teamId);
@@ -198,7 +198,7 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Get all teams (real-time)
+    // Firebase: Get all teams (real-time)
     async getAllTeams() {
         try {
             const teamsSnapshot = await db.collection('teams').orderBy('completedTasks', 'desc').get();
@@ -215,7 +215,7 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Real-time listener for admin dashboard
+    // Firebase: Real-time listener for admin dashboard
     listenToTeamUpdates(callback) {
         return db.collection('teams')
             .orderBy('completedTasks', 'desc')
@@ -228,7 +228,7 @@ class FirebaseTreasureHunt {
             });
     }
 
-    // 🔥 Firebase: Get all submissions
+    // Firebase: Get all submissions
     async getSubmissions() {
         try {
             const submissionsSnapshot = await db.collection('submissions')
@@ -247,7 +247,7 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Clear all data (admin function)
+    // Firebase: Clear all data (admin function)
     async clearAllData() {
         if (!confirm('Are you sure you want to clear ALL game data? This cannot be undone!')) {
             return false;
@@ -273,7 +273,7 @@ class FirebaseTreasureHunt {
             // Clear localStorage
             localStorage.clear();
             
-            alert('✅ All data cleared successfully!');
+            alert('All data cleared successfully!');
             return true;
         } catch (error) {
             console.error('Error clearing data:', error);
@@ -282,7 +282,7 @@ class FirebaseTreasureHunt {
         }
     }
 
-    // 🔥 Firebase: Export data
+    // Firebase: Export data
     async exportData() {
         try {
             const teams = await this.getAllTeams();
@@ -311,10 +311,10 @@ class FirebaseTreasureHunt {
     }
 }
 
-// 🔥 Initialize Firebase game instance
+// Initialize Firebase game instance
 const firebaseGame = new FirebaseTreasureHunt();
 
-// 🔥 Real-time admin dashboard functions
+// Real-time admin dashboard functions
 function initializeAdminDashboard() {
     if (typeof updateLeaderboard === 'function') {
         // Set up real-time listener
@@ -341,17 +341,17 @@ function updateLeaderboard(teams) {
         
         let currentTask, status;
         if (team.completedTasks === 5) {
-            currentTask = '🏆 WINNER!';
-            status = '🏆 CHAMPION!';
+            currentTask = 'WINNER!';
+            status = 'CHAMPION!';
         } else if (team.status === 'completed' && team.completedTasks === 4) {
             currentTask = 'Task 5 - Final Challenge';
-            status = '🎯 At Final Task';
+            status = 'At Final Task';
         } else if (team.currentTask === 'completed') {
             currentTask = 'COMPLETED!';
-            status = '🏆 Winner';
+            status = 'Winner';
         } else {
             currentTask = `Task ${team.currentTask}`;
-            status = '🎮 Playing';
+            status = 'Playing';
         }
         
         const completionTime = team.completionTime ? 
@@ -388,7 +388,7 @@ function updateStatistics(teams) {
     }
 }
 
-// 🔥 Updated game functions for Firebase
+// Updated game functions for Firebase
 async function setTeamIdTask1() {
     const teamIdInput = document.getElementById('teamIdInput');
     const teamId = teamIdInput.value.trim().toUpperCase();
@@ -412,7 +412,7 @@ async function verifyTask2() {
         return;
     }
     
-    // 🔒 SEQUENCE LOCK: Check if team can access Task 2
+    // SEQUENCE LOCK: Check if team can access Task 2
     if (!(await canAccessTask(teamId, 2))) {
         showSequenceError(2);
         return;
@@ -420,7 +420,7 @@ async function verifyTask2() {
     
     // Simple code check
     if (code !== 'TC441') {
-        alert('❌ Incorrect code! You need the code from Task 1.');
+        alert('Incorrect code! You need the code from Task 1.');
         return;
     }
     
@@ -440,7 +440,7 @@ async function verifyTask3() {
         return;
     }
     
-    // 🔒 SEQUENCE LOCK: Check if team can access Task 3
+    // SEQUENCE LOCK: Check if team can access Task 3
     if (!(await canAccessTask(teamId, 3))) {
         showSequenceError(3);
         return;
@@ -448,7 +448,7 @@ async function verifyTask3() {
     
     // Simple code check
     if (code !== 'TC242') {
-        alert('❌ Incorrect code! You need the code from Task 2.');
+        alert('Incorrect code! You need the code from Task 2.');
         return;
     }
     
@@ -468,7 +468,7 @@ async function verifyTask4() {
         return;
     }
     
-    // 🔒 SEQUENCE LOCK: Check if team can access Task 4
+    // SEQUENCE LOCK: Check if team can access Task 4
     if (!(await canAccessTask(teamId, 4))) {
         showSequenceError(4);
         return;
@@ -476,7 +476,7 @@ async function verifyTask4() {
     
     // Simple code check
     if (code !== 'TC803') {
-        alert('❌ Incorrect code! You need the code from Task 3.');
+        alert('Incorrect code! You need the code from Task 3.');
         return;
     }
     
@@ -496,10 +496,10 @@ async function completeTask1() {
     
     const success = await firebaseGame.completeTask(1, teamId);
     if (success) {
-        document.getElementById('completeBtn').textContent = '✅ Task 1 Completed!';
+        document.getElementById('completeBtn').textContent = 'Task 1 Completed!';
         document.getElementById('completeBtn').disabled = true;
         document.getElementById('completeBtn').style.opacity = '0.7';
-        alert('🎉 Great! You have completed Task 1. Now find the QR code for Task 2!');
+        alert('Great! You have completed Task 1. Now find the QR code for Task 2!');
     }
 }
 
@@ -512,10 +512,10 @@ async function completeTask2() {
     
     const success = await firebaseGame.completeTask(2, teamId);
     if (success) {
-        document.getElementById('completeBtn2').textContent = '✅ Task 2 Completed!';
+        document.getElementById('completeBtn2').textContent = 'Task 2 Completed!';
         document.getElementById('completeBtn2').disabled = true;
         document.getElementById('completeBtn2').style.opacity = '0.7';
-        alert('🎉 Excellent! Task 2 completed. Find the QR code for Task 3!');
+        alert('Excellent! Task 2 completed. Find the QR code for Task 3!');
     }
 }
 
@@ -528,10 +528,10 @@ async function completeTask3() {
     
     const success = await firebaseGame.completeTask(3, teamId);
     if (success) {
-        document.getElementById('completeBtn3').textContent = '✅ Task 3 Completed!';
+        document.getElementById('completeBtn3').textContent = 'Task 3 Completed!';
         document.getElementById('completeBtn3').disabled = true;
         document.getElementById('completeBtn3').style.opacity = '0.7';
-        alert('🎉 Outstanding! Task 3 completed. Find the QR code for Task 4!');
+        alert('Outstanding! Task 3 completed. Find the QR code for Task 4!');
     }
 }
 
@@ -544,10 +544,10 @@ async function completeTask4() {
     
     const success = await firebaseGame.completeTask(4, teamId);
     if (success) {
-        document.getElementById('completeBtn4').textContent = '✅ Task 4 Completed!';
+        document.getElementById('completeBtn4').textContent = 'Task 4 Completed!';
         document.getElementById('completeBtn4').disabled = true;
         document.getElementById('completeBtn4').style.opacity = '0.7';
-        alert('🎉 Amazing! Task 4 completed. Find the final QR code for the WINNER challenge!');
+        alert('Amazing! Task 4 completed. Find the final QR code for the WINNER challenge!');
     }
 }
 
@@ -560,7 +560,7 @@ async function verifyTask5() {
         return;
     }
     
-    // 🔒 SEQUENCE LOCK: Check if team can access Task 5
+    // SEQUENCE LOCK: Check if team can access Task 5
     if (!(await canAccessTask(teamId, 5))) {
         showSequenceError(5);
         return;
@@ -568,7 +568,7 @@ async function verifyTask5() {
     
     // Simple code check
     if (code !== 'TC200') {
-        alert('❌ Incorrect code! You need the code from Task 4.');
+        alert('Incorrect code! You need the code from Task 4.');
         return;
     }
     
@@ -590,26 +590,26 @@ async function completeTask5() {
     
     const success = await firebaseGame.completeTask(5, teamId);
     if (success) {
-        document.getElementById('completeBtn5').textContent = '🎉 VICTORY CLAIMED!';
+        document.getElementById('completeBtn5').textContent = 'VICTORY CLAIMED!';
         document.getElementById('completeBtn5').disabled = true;
         document.getElementById('completeBtn5').style.opacity = '0.7';
         
-        // 🏆 WINNER CELEBRATION!
-        alert('🏆 CONGRATULATIONS! You are the OFFICIAL WINNER of the treasure hunt!');
+        // WINNER CELEBRATION!
+        alert('CONGRATULATIONS! You are the OFFICIAL WINNER of the treasure hunt!');
         
-        // 🎊 Show celebration
+        // Show celebration
         setTimeout(() => {
-            if (confirm('🎉 Would you like to see the final results and leaderboard?')) {
+            if (confirm('Would you like to see the final results and leaderboard?')) {
                 goToAdmin();
             }
         }, 2000);
         
-        // 🎯 Final celebration effects
+        // Final celebration effects
         celebrateWinner();
     }
 }
 
-// 🎊 Winner celebration function
+// Winner celebration function
 function celebrateWinner() {
     // Add confetti effect to body
     document.body.style.background = 'linear-gradient(45deg, #FFD700, #FFA500, #FF6B6B, #4ECDC4)';
@@ -619,7 +619,7 @@ function celebrateWinner() {
     // Add winner sound effect (optional)
     try {
         // You can add sound here if needed
-        console.log('🎉 WINNER CELEBRATION!');
+        console.log('WINNER CELEBRATION!');
     } catch (e) {
         // Silent fail for sound
     }
@@ -634,7 +634,7 @@ function goToAdmin() {
     window.location.href = 'admin.html';
 }
 
-// 🔒 SIMPLE SEQUENCE LOCK: Check if team can access this task
+// SIMPLE SEQUENCE LOCK: Check if team can access this task
 async function canAccessTask(teamId, taskNumber) {
     // Task 1 is always accessible
     if (taskNumber === 1) return true;
@@ -649,7 +649,7 @@ async function canAccessTask(teamId, taskNumber) {
         const requiredCompletedTasks = taskNumber - 1;
         const hasCompleted = progress.completedTasks >= requiredCompletedTasks;
         
-        console.log(`🔒 Team ${teamId} - Task ${taskNumber}: Completed=${progress.completedTasks}, Required=${requiredCompletedTasks}, Access=${hasCompleted}`);
+        console.log(`Team ${teamId} - Task ${taskNumber}: Completed=${progress.completedTasks}, Required=${requiredCompletedTasks}, Access=${hasCompleted}`);
         
         return hasCompleted;
     } catch (error) {
@@ -658,10 +658,10 @@ async function canAccessTask(teamId, taskNumber) {
     }
 }
 
-// 🔒 SEQUENCE LOCK: Show sequence error
+// SEQUENCE LOCK: Show sequence error
 function showSequenceError(taskNumber) {
     const previousTask = taskNumber - 1;
-    alert(`🚫 SEQUENCE ERROR!\n\nYou must complete Task ${previousTask} first before accessing Task ${taskNumber}.\n\nPlease follow the proper order!`);
+    alert(`SEQUENCE ERROR!\n\nYou must complete Task ${previousTask} first before accessing Task ${taskNumber}.\n\nPlease follow the proper order!`);
 }
 
 // Initialize on page load
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-console.log('🔥 Firebase Treasure Hunt Game Initialized');
+console.log('Firebase Treasure Hunt Game Initialized');
 
 // Export for global access
 window.firebaseGame = firebaseGame; 

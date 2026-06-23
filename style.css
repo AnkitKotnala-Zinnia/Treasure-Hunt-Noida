@@ -40,6 +40,9 @@
         #004DFF 56%, #732982 70%, #F6A9B6 84%, #5BCEFA 100%);
     --btn-primary: var(--pride-rainbow);
     --btn-secondary-bg: linear-gradient(145deg, #613915, #1A0F2E);
+    --font-ui: 'Poppins', 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', Arial, sans-serif;
+    --font-devanagari: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', sans-serif;
+    --font-code: 'Courier New', 'Consolas', monospace;
 }
 
 * {
@@ -56,13 +59,17 @@ html {
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-ui);
     background: var(--pride-rainbow-bg);
     background-size: 400% 400%;
     animation: prideShift 16s ease infinite;
     min-height: 100vh;
     color: var(--text-on-dark);
     line-height: 1.6;
+}
+
+button, input, table {
+    font-family: inherit;
 }
 
 @keyframes prideShift {
@@ -93,6 +100,7 @@ body {
     border-radius: 0 3px 3px 0;
     box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
     flex-shrink: 0;
+    -webkit-text-fill-color: initial;
 }
 
 .pride-flag::before {
@@ -127,6 +135,7 @@ body {
     background: conic-gradient(var(--pride-red), var(--pride-orange), var(--pride-yellow),
         var(--pride-green), var(--pride-blue), var(--pride-violet), var(--pride-red));
     flex-shrink: 0;
+    -webkit-text-fill-color: initial;
 }
 
 .pride-text {
@@ -142,6 +151,7 @@ h1, h2, h3 {
     justify-content: center;
     flex-wrap: wrap;
     gap: 0.15em;
+    line-height: 1.25;
 }
 
 .container > h1,
@@ -390,6 +400,18 @@ button:active { transform: translateY(0); }
     font-size: 1.8em;
 }
 
+.team-setup-section h2,
+.setup-box p,
+.verification-section label,
+.task-code-section h3,
+.winner-section h1,
+.winner-section h2,
+.winner-section h3,
+.winner-section h4,
+.winner-section p {
+    color: var(--text-secondary);
+}
+
 .clue-box {
     background: var(--surface-tint);
     border-left: 5px solid var(--magenta);
@@ -399,11 +421,12 @@ button:active { transform: translateY(0); }
 }
 
 .clue-box p {
-    font-size: 1.1em;
-    line-height: 1.8;
+    font-family: var(--font-devanagari);
+    font-size: 1.25em;
+    line-height: 1.9;
     color: var(--text-primary);
     font-weight: 500;
-    font-style: italic;
+    font-style: normal;
 }
 
 .task-code-section {
@@ -413,6 +436,13 @@ button:active { transform: translateY(0); }
     margin-bottom: 30px;
     text-align: center;
     box-shadow: 0 10px 25px var(--shadow-soft);
+}
+
+.task-code-section h3 {
+    display: block;
+    text-align: center;
+    margin-bottom: 18px;
+    -webkit-text-fill-color: var(--text-secondary);
 }
 
 .task-code {
@@ -425,7 +455,7 @@ button:active { transform: translateY(0); }
     padding: 20px;
     margin: 15px 0;
     letter-spacing: 3px;
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-code);
 }
 
 .task-note {
@@ -564,6 +594,15 @@ table th, table td,
     border-bottom: 1px solid var(--border-light);
 }
 
+table td,
+.leaderboard-table td {
+    color: var(--text-primary);
+}
+
+.leaderboard-table td strong {
+    color: var(--magenta);
+}
+
 table th, .leaderboard-table th {
     background: var(--pride-progress);
     font-weight: 600;
@@ -603,6 +642,7 @@ table tr:hover, .leaderboard-table tr:hover {
     font-size: 0.8rem;
     margin-left: 10px;
     animation: pulse 2s infinite;
+    -webkit-text-fill-color: white;
 }
 
 #firebase-status.firebase-status {
@@ -613,6 +653,7 @@ table tr:hover, .leaderboard-table tr:hover {
     border-radius: 15px;
     font-size: 0.8rem;
     margin-left: 10px;
+    -webkit-text-fill-color: white;
 }
 
 #firebase-status.firebase-status.connected {
