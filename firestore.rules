@@ -1,0 +1,77 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isValidTaskNumber(taskNumber) {
+      return taskNumber is int && taskNumber >= 1 && taskNumber <= 5;
+    }
+
+    function hasScanForTask(teamId, taskNumber) {
+      return taskNumber == 1
+        || (taskNumber == 2 && exists(/databases/$(database)/documents/teamScans/$(teamId)/tasks/2))
+        || (taskNumber == 3 && exists(/databases/$(database)/documents/teamScans/$(teamId)/tasks/3))
+        || (taskNumber == 4 && exists(/databases/$(database)/documents/teamScans/$(teamId)/tasks/4))
+        || (taskNumber == 5 && exists(/databases/$(database)/documents/teamScans/$(teamId)/tasks/5));
+    }
+
+    function validTeamCreate(teamId) {
+      return request.resource.data.id == teamId
+        && request.resource.data.completedTasks == 0
+        && request.resource.data.currentTask == 1
+        && request.resource.data.status == 'active'
+        && request.resource.data.taskHistory is list
+        && request.resource.data.taskHistory.size() == 0
+        && request.resource.data.keys().hasOnly([
+          'id',
+          'completedTasks',
+          'currentTask',
+          'startTime',
+          'completionTime',
+          'taskHistory',
+          'status'
+        ]);
+    }
+
+    function validTeamProgressUpdate(teamId) {
+      return request.resource.data.id == resource.data.id
+        && isValidTaskNumber(request.resource.data.completedTasks)
+        && request.resource.data.completedTasks == resource.data.completedTasks + 1
+        && hasScanForTask(teamId, request.resource.data.completedTasks);
+    }
+
+    match /qrSecrets/{taskId} {
+      allow read, write: if false;
+    }
+
+    match /teamScans/{teamId}/tasks/{taskId} {
+      allow read: if false;
+      allow delete: if false;
+      allow create, update: if taskId in ['2', '3', '4', '5']
+        && request.resource.data.keys().hasOnly(['teamId', 'taskId', 'scanToken', 'createdAt'])
+        && request.resource.data.teamId == teamId
+        && request.resource.data.taskId == taskId
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.scanToken == get(/databases/$(database)/documents/qrSecrets/$(taskId)).data.token;
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
+      allow create: if validTeamCreate(teamId);
+      allow update: if validTeamProgressUpdate(teamId);
+      allow delete: if false;
+    }
+
+    match /submissions/{submissionId} {
+      allow read: if true;
+      allow create: if request.resource.data.teamId is string
+        && isValidTaskNumber(request.resource.data.taskNumber)
+        && hasScanForTask(request.resource.data.teamId, request.resource.data.taskNumber)
+        && request.resource.data.timestamp is timestamp;
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

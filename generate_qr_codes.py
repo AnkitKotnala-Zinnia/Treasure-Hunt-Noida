@@ -1,13 +1,27 @@
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import os
+import json
+import secrets
 
-QR_GATE_TOKENS = {
-    2: "qr-task2-rainbow-gate-7KQ9M2",
-    3: "qr-task3-pride-gate-F4N8X1",
-    4: "qr-task4-courage-gate-P6T2L9",
-    5: "qr-task5-champion-gate-Z8H3V5",
-}
+SECRETS_FILE = "qr-secrets.local.json"
+
+def load_or_create_qr_gate_tokens():
+    """Load private QR tokens from an ignored local file, creating them once."""
+    if os.path.exists(SECRETS_FILE):
+        with open(SECRETS_FILE, "r", encoding="utf-8") as f:
+            tokens = json.load(f)
+    else:
+        tokens = {str(task): secrets.token_urlsafe(24) for task in range(2, 6)}
+        with open(SECRETS_FILE, "w", encoding="utf-8") as f:
+            json.dump(tokens, f, indent=2)
+            f.write("\n")
+
+    missing = [str(task) for task in range(2, 6) if not tokens.get(str(task))]
+    if missing:
+        raise ValueError(f"Missing QR gate token(s) in {SECRETS_FILE}: {', '.join(missing)}")
+
+    return tokens
 
 def create_qr_code_with_label(url, label, filename):
     """Create a QR code with URL and label"""
@@ -90,6 +104,7 @@ def create_qr_code_with_label(url, label, filename):
 def main():
     # 🚨 YOUR GITHUB PAGES URL
     base_url = "https://ankitkotnala-zinnia.github.io/Treasure-Hunt-Noida"
+    qr_gate_tokens = load_or_create_qr_gate_tokens()
     
     print("🎯 Generating QR Codes for Treasure Hunt Game")
     print("=" * 50)
@@ -104,22 +119,22 @@ def main():
             "filename": "task1_qr.png"
         },
         {
-            "url": f"{base_url}/task2.html?scan={QR_GATE_TOKENS[2]}",
+            "url": f"{base_url}/task2.html?scan={qr_gate_tokens['2']}",
             "label": "Task 2 - Second Clue", 
             "filename": "task2_qr.png"
         },
         {
-            "url": f"{base_url}/task3.html?scan={QR_GATE_TOKENS[3]}",
+            "url": f"{base_url}/task3.html?scan={qr_gate_tokens['3']}",
             "label": "Task 3 - Third Clue", 
             "filename": "task3_qr.png"
         },
         {
-            "url": f"{base_url}/task4.html?scan={QR_GATE_TOKENS[4]}",
+            "url": f"{base_url}/task4.html?scan={qr_gate_tokens['4']}",
             "label": "Task 4 - Fourth Challenge", 
             "filename": "task4_qr.png"
         },
         {
-            "url": f"{base_url}/task5.html?scan={QR_GATE_TOKENS[5]}",
+            "url": f"{base_url}/task5.html?scan={qr_gate_tokens['5']}",
             "label": "Task 5 - WINNER!", 
             "filename": "task5_qr.png"
         }

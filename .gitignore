@@ -1,5 +1,8 @@
 # Firebase configuration
 firebase-config.js
+qr-secrets.local.json
+task*_qr.png
+qr_codes/
 
 # Environment files
 .env

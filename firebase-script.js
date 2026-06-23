@@ -18,12 +18,6 @@ const db = firebase.firestore();
 
 const QR_GATE_QUERY_PARAM = 'scan';
 const QR_GATE_STORAGE_PREFIX = 'treasureHuntQrGateTask';
-const QR_GATE_TOKENS = {
-    2: 'qr-task2-rainbow-gate-7KQ9M2',
-    3: 'qr-task3-pride-gate-F4N8X1',
-    4: 'qr-task4-courage-gate-P6T2L9',
-    5: 'qr-task5-champion-gate-Z8H3V5'
-};
 
 class FirebaseTreasureHunt {
     constructor() {
@@ -448,6 +442,10 @@ async function verifyTask2() {
         return;
     }
     
+    if (!(await recordQrScan(teamId, 2))) {
+        return;
+    }
+
     if (await firebaseGame.setTeamId(teamId)) {
         document.getElementById('clueSection').style.display = 'block';
         document.getElementById('teamDisplayName').textContent = teamId;
@@ -476,6 +474,10 @@ async function verifyTask3() {
         return;
     }
     
+    if (!(await recordQrScan(teamId, 3))) {
+        return;
+    }
+
     if (await firebaseGame.setTeamId(teamId)) {
         document.getElementById('clueSection3').style.display = 'block';
         document.getElementById('teamDisplayName').textContent = teamId;
@@ -504,6 +506,10 @@ async function verifyTask4() {
         return;
     }
     
+    if (!(await recordQrScan(teamId, 4))) {
+        return;
+    }
+
     if (await firebaseGame.setTeamId(teamId)) {
         document.getElementById('clueSection4').style.display = 'block';
         document.getElementById('teamDisplayName').textContent = teamId;
@@ -596,6 +602,10 @@ async function verifyTask5() {
         return;
     }
     
+    if (!(await recordQrScan(teamId, 5))) {
+        return;
+    }
+
     if (await firebaseGame.setTeamId(teamId)) {
         document.getElementById('clueSection5').style.display = 'block';
         document.getElementById('teamDisplayName').textContent = teamId;
@@ -665,15 +675,12 @@ function getQrGateStorageKey(taskNumber) {
 function hasValidQrGate(taskNumber) {
     if (taskNumber === 1) return true;
 
-    const expectedToken = QR_GATE_TOKENS[taskNumber];
-    if (!expectedToken) return false;
-
     const params = new URLSearchParams(window.location.search);
     const suppliedToken = params.get(QR_GATE_QUERY_PARAM) || params.get('gate');
     const storageKey = getQrGateStorageKey(taskNumber);
 
-    if (suppliedToken && suppliedToken.toLowerCase() === expectedToken.toLowerCase()) {
-        sessionStorage.setItem(storageKey, 'scanned');
+    if (suppliedToken) {
+        sessionStorage.setItem(storageKey, suppliedToken.trim());
         params.delete(QR_GATE_QUERY_PARAM);
         params.delete('gate');
         const cleanQuery = params.toString();
@@ -685,7 +692,41 @@ function hasValidQrGate(taskNumber) {
         return true;
     }
 
-    return sessionStorage.getItem(storageKey) === 'scanned';
+    return Boolean(sessionStorage.getItem(storageKey));
+}
+
+function getStoredQrGateToken(taskNumber) {
+    return sessionStorage.getItem(getQrGateStorageKey(taskNumber)) || '';
+}
+
+async function recordQrScan(teamId, taskNumber) {
+    if (taskNumber === 1) return true;
+
+    const scanToken = getStoredQrGateToken(taskNumber);
+    if (!scanToken) {
+        showQrGateError(taskNumber);
+        return false;
+    }
+
+    try {
+        await db
+            .collection('teamScans')
+            .doc(teamId)
+            .collection('tasks')
+            .doc(String(taskNumber))
+            .set({
+                teamId,
+                taskId: String(taskNumber),
+                scanToken,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        return true;
+    } catch (error) {
+        console.error('Error recording QR scan:', error);
+        sessionStorage.removeItem(getQrGateStorageKey(taskNumber));
+        alert('This QR scan could not be verified. Please scan the official QR code at the clue location again.');
+        return false;
+    }
 }
 
 function showQrGateError(taskNumber) {
