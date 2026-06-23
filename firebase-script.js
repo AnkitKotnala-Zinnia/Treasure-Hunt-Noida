@@ -16,6 +16,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+const QR_GATE_QUERY_PARAM = 'scan';
+const QR_GATE_STORAGE_PREFIX = 'treasureHuntQrGateTask';
+const QR_GATE_TOKENS = {
+    2: 'qr-task2-rainbow-gate-7KQ9M2',
+    3: 'qr-task3-pride-gate-F4N8X1',
+    4: 'qr-task4-courage-gate-P6T2L9',
+    5: 'qr-task5-champion-gate-Z8H3V5'
+};
+
 class FirebaseTreasureHunt {
     constructor() {
         this.taskCodes = {
@@ -122,11 +131,27 @@ class FirebaseTreasureHunt {
 
         try {
             const teamRef = db.collection('teams').doc(teamId);
-            const teamDoc = await teamRef.get();
+            let teamDoc = await teamRef.get();
             
             if (!teamDoc.exists) {
-                // Auto-create team if needed
+                if (taskNumber !== 1) {
+                    alert('Please start from Task 1 and complete tasks in order.');
+                    return false;
+                }
                 await this.setTeamId(teamId);
+                teamDoc = await teamRef.get();
+            }
+
+            const existingData = teamDoc.exists ? teamDoc.data() : {};
+            const completedTasks = Number(existingData.completedTasks || 0);
+
+            if (completedTasks >= taskNumber) {
+                return true;
+            }
+
+            if (taskNumber !== completedTasks + 1) {
+                alert(`Invalid sequence. Please complete Task ${completedTasks + 1} next.`);
+                return false;
             }
 
             const now = firebase.firestore.FieldValue.serverTimestamp();
@@ -147,7 +172,6 @@ class FirebaseTreasureHunt {
             }
             
             // Add to task history (use regular Date instead of serverTimestamp)
-            const existingData = teamDoc.exists ? teamDoc.data() : {};
             const taskHistory = existingData.taskHistory || [];
             taskHistory.push({
                 taskNumber: taskNumber,
@@ -632,6 +656,81 @@ function goHome() {
 
 function goToAdmin() {
     window.location.href = 'admin.html';
+}
+
+function getQrGateStorageKey(taskNumber) {
+    return `${QR_GATE_STORAGE_PREFIX}${taskNumber}`;
+}
+
+function hasValidQrGate(taskNumber) {
+    if (taskNumber === 1) return true;
+
+    const expectedToken = QR_GATE_TOKENS[taskNumber];
+    if (!expectedToken) return false;
+
+    const params = new URLSearchParams(window.location.search);
+    const suppliedToken = params.get(QR_GATE_QUERY_PARAM) || params.get('gate');
+    const storageKey = getQrGateStorageKey(taskNumber);
+
+    if (suppliedToken && suppliedToken.toLowerCase() === expectedToken.toLowerCase()) {
+        sessionStorage.setItem(storageKey, 'scanned');
+        params.delete(QR_GATE_QUERY_PARAM);
+        params.delete('gate');
+        const cleanQuery = params.toString();
+        const cleanUrl =
+            window.location.pathname +
+            (cleanQuery ? `?${cleanQuery}` : '') +
+            window.location.hash;
+        window.history.replaceState({}, document.title, cleanUrl);
+        return true;
+    }
+
+    return sessionStorage.getItem(storageKey) === 'scanned';
+}
+
+function showQrGateError(taskNumber) {
+    const verificationSection = document.querySelector('.verification-section');
+    if (verificationSection) verificationSection.style.display = 'none';
+
+    document.querySelectorAll('.clue-section').forEach(section => {
+        section.style.display = 'none';
+    });
+
+    if (document.getElementById('qrGateError')) return;
+
+    const taskHeader = document.querySelector('.task-header');
+    const panel = document.createElement('div');
+    panel.id = 'qrGateError';
+    panel.className = 'gate-block-section';
+    panel.innerHTML = `
+        <h2>Scan Required</h2>
+        <p>Task ${taskNumber} can only be opened by scanning the QR code placed at the previous clue location.</p>
+        <p class="help-text">Typing the page URL manually will not unlock this task.</p>
+        <button type="button" onclick="goHome()" class="btn-secondary">Home</button>
+    `;
+
+    if (taskHeader && taskHeader.parentNode) {
+        taskHeader.insertAdjacentElement('afterend', panel);
+    } else {
+        document.body.prepend(panel);
+    }
+}
+
+async function blockDirectAccess(taskNumber) {
+    if (!hasValidQrGate(taskNumber)) {
+        showQrGateError(taskNumber);
+        return false;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const teamId = (params.get('team') || localStorage.getItem('currentTeamId') || '').trim().toUpperCase();
+
+    if (teamId && !(await canAccessTask(teamId, taskNumber))) {
+        showSequenceError(taskNumber);
+        return false;
+    }
+
+    return true;
 }
 
 // SIMPLE SEQUENCE LOCK: Check if team can access this task

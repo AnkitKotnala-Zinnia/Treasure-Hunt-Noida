@@ -2,6 +2,13 @@ import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import os
 
+QR_GATE_TOKENS = {
+    2: "qr-task2-rainbow-gate-7KQ9M2",
+    3: "qr-task3-pride-gate-F4N8X1",
+    4: "qr-task4-courage-gate-P6T2L9",
+    5: "qr-task5-champion-gate-Z8H3V5",
+}
+
 def create_qr_code_with_label(url, label, filename):
     """Create a QR code with URL and label"""
     
@@ -51,8 +58,8 @@ def create_qr_code_with_label(url, label, filename):
     title_x = (img_width - title_width) // 2
     draw.text((title_x, 10), title_text, fill='black', font=title_font)
     
-    # Draw URL
-    url_text = url
+    # Draw a safe public label instead of printing the gated URL token.
+    url_text = "Scan this QR code at the clue location"
     url_bbox = draw.textbbox((0, 0), url_text, font=url_font)
     url_width = url_bbox[2] - url_bbox[0]
     url_x = (img_width - url_width) // 2
@@ -97,22 +104,22 @@ def main():
             "filename": "task1_qr.png"
         },
         {
-            "url": f"{base_url}/task2.html",
+            "url": f"{base_url}/task2.html?scan={QR_GATE_TOKENS[2]}",
             "label": "Task 2 - Second Clue", 
             "filename": "task2_qr.png"
         },
         {
-            "url": f"{base_url}/task3.html",
+            "url": f"{base_url}/task3.html?scan={QR_GATE_TOKENS[3]}",
             "label": "Task 3 - Third Clue", 
             "filename": "task3_qr.png"
         },
         {
-            "url": f"{base_url}/task4.html",
+            "url": f"{base_url}/task4.html?scan={QR_GATE_TOKENS[4]}",
             "label": "Task 4 - Fourth Challenge", 
             "filename": "task4_qr.png"
         },
         {
-            "url": f"{base_url}/task5.html",
+            "url": f"{base_url}/task5.html?scan={QR_GATE_TOKENS[5]}",
             "label": "Task 5 - WINNER!", 
             "filename": "task5_qr.png"
         }

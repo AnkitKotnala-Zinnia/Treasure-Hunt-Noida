@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task 2 - Pride Treasure Hunt</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK -->
@@ -64,7 +64,11 @@
             return urlParams.get(name);
         }
         
-        window.onload = function() {
+        window.onload = async function() {
+            if (!(await blockDirectAccess(2))) {
+                return;
+            }
+
             const urlTeamId = getURLParameter('team');
             if (urlTeamId) {
                 document.getElementById('teamId2').value = urlTeamId.toUpperCase();
