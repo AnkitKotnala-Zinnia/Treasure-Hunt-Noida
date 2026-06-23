@@ -155,6 +155,8 @@ class FirebaseTreasureHunt {
             const updates = {
                 completedTasks: taskNumber,
                 currentTask: taskNumber + 1,
+                latestCompletedTask: taskNumber,
+                latestCompletedAt: now,
                 [`task${taskNumber}CompletedAt`]: now
             };
             
@@ -176,13 +178,18 @@ class FirebaseTreasureHunt {
             
             await teamRef.set(updates, { merge: true });
             
-            // Also log submission (use regular timestamp here too)
-            await db.collection('submissions').add({
-                teamId: teamId,
-                taskNumber: taskNumber,
-                taskCode: this.taskCodes[taskNumber],
-                timestamp: regularTimestamp // Fixed: Use regular Date
-            });
+            // Submission logs are useful for export/audit, but team progress is the source of truth.
+            // If rules block this optional log, do not fail the player's completion.
+            try {
+                await db.collection('submissions').add({
+                    teamId: teamId,
+                    taskNumber: taskNumber,
+                    taskCode: this.taskCodes[taskNumber],
+                    timestamp: regularTimestamp
+                });
+            } catch (submissionError) {
+                console.warn('Progress saved, but submission log was not written:', submissionError);
+            }
 
             console.log(`Task ${taskNumber} completed for team ${teamId}`);
             
@@ -372,8 +379,7 @@ function updateLeaderboard(teams) {
             status = 'Playing';
         }
         
-        const completionTime = team.completionTime ? 
-            new Date(team.completionTime.toDate()).toLocaleTimeString() : '-';
+        const completionTime = formatFirestoreTime(getLatestCompletionValue(team));
         
         // Highlight winners (Task 5 completed)
         const rowClass = team.completedTasks === 5 ? 'winner-team' : 
@@ -392,6 +398,42 @@ function updateLeaderboard(teams) {
     });
     
     leaderboardBody.innerHTML = html;
+}
+
+function formatFirestoreTime(value) {
+    if (!value) return '-';
+
+    let date;
+    if (typeof value.toDate === 'function') {
+        date = value.toDate();
+    } else if (value instanceof Date) {
+        date = value;
+    } else {
+        date = new Date(value);
+    }
+
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+
+function getLatestCompletionValue(team) {
+    if (team.latestCompletedAt) return team.latestCompletedAt;
+    if (team.completionTime) return team.completionTime;
+
+    const completedTasks = Number(team.completedTasks || 0);
+    if (completedTasks > 0 && team[`task${completedTasks}CompletedAt`]) {
+        return team[`task${completedTasks}CompletedAt`];
+    }
+
+    if (Array.isArray(team.taskHistory) && team.taskHistory.length > 0) {
+        return team.taskHistory[team.taskHistory.length - 1].completedAt;
+    }
+
+    return null;
 }
 
 function updateStatistics(teams) {
