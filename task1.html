@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 1 - Pride Treasure Hunt</title>
+    <link rel="stylesheet" href="style.css?v=4">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🔥 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="task-header">
+            <h1><span class="rainbow-icon" aria-hidden="true"></span> Task 1 - Welcome!</h1>
+            <div class="progress-bar">
+                <div class="progress" style="width: 25%;"></div>
+            </div>
+        </div>
+        
+        <!-- Team ID Setup Section -->
+        <div class="team-setup-section" id="teamSetupSection">
+            <h2>👥 Enter Your Team ID</h2>
+            <div class="setup-box">
+                <p>Welcome to the Treasure Hunt! Please enter your assigned Team ID to start:</p>
+                <div class="team-input-group">
+                    <input type="text" id="teamIdInput" maxlength="15">
+                    <button onclick="setTeamIdTask1()" id="setTeamBtn">Start Task 1</button>
+                </div>
+                <p class="help-text">💡 Your Team ID was given to you by the organizer</p>
+            </div>
+        </div>
+        
+        <!-- Game Content Section (hidden initially) -->
+        <div class="game-content" id="gameContent" style="display: none;">
+            <div class="team-welcome" id="teamWelcome">
+                <h2>🎉 Welcome Team <span id="teamDisplayName">ALPHA</span>!</h2>
+                <p>Great! You're registered and ready to start your treasure hunt adventure.</p>
+                <div class="firebase-status">
+                    <p id="connectionStatus">🗺️ Ready for adventure - Your progress is being tracked!</p>
+                </div>
+            </div>
+            
+            <div class="clue-section">
+                <h2>🧩 Your Clue:</h2>
+                <div class="clue-box">
+                    <p>"गिनती में जो दिखे नहीं, पर उसके बिना कुछ भी चले नहीं। सोचो उस खोज के जनक को, और पहुँचो उसके नाम वाले ठिकाने को।"</p>
+                </div>
+            </div>
+            
+            <div class="task-code-section">
+                <h3>📝 Task Code to Remember:</h3>
+                <div class="task-code">TC441</div>
+                <p class="task-note">Remember this code! You'll need it for the next task.</p>
+            </div>
+            
+            <div class="team-info">
+                <p>Team ID: <span id="currentTeamId">Not Set</span></p>
+                <button onclick="completeTask1()" id="completeBtn">Mark Task 1 Complete</button>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button onclick="goHome()" class="btn-secondary">🏠 Home</button>
+        </div>
+    </div>
+    
+    <!-- Firebase Scripts -->
+    <script src="firebase-script.js"></script>
+    <script>
+        function getURLParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        async function setTeamIdTask1() {
+            const teamIdInput = document.getElementById('teamIdInput');
+            const teamId = teamIdInput.value.trim().toUpperCase();
+            
+            if (!teamId) {
+                alert('Please enter your Team ID');
+                return;
+            }
+            
+            // 🔥 Firebase: Set team ID with real-time sync
+            if (await firebaseGame.setTeamId(teamId)) {
+                showGameContent(teamId);
+            }
+        }
+        
+        function showGameContent(teamId) {
+            // Hide setup section and show game content
+            document.getElementById('teamSetupSection').style.display = 'none';
+            document.getElementById('gameContent').style.display = 'block';
+            document.getElementById('currentTeamId').textContent = teamId;
+            document.getElementById('teamDisplayName').textContent = teamId;
+            
+            // 🔥 Firebase: Check task status in real-time
+            loadTaskStatus();
+        }
+        
+        async function loadTaskStatus() {
+            const teamId = firebaseGame.getCurrentTeamId();
+            if (!teamId) return;
+            
+            // 🔥 Firebase: Get real-time team progress
+            const progress = await firebaseGame.getTeamProgress(teamId);
+            if (progress && progress.completedTasks >= 1) {
+                document.getElementById('completeBtn').textContent = '✅ Task 1 Completed';
+                document.getElementById('completeBtn').disabled = true;
+                document.getElementById('completeBtn').style.opacity = '0.7';
+            }
+        }
+        
+        window.onload = async function() {
+            // Check for team ID in URL parameter
+            const urlTeamId = getURLParameter('team');
+            const currentTeamId = firebaseGame.getCurrentTeamId();
+            
+            if (urlTeamId) {
+                // Team ID provided in URL - auto-set it
+                const teamIdUpper = urlTeamId.toUpperCase();
+                if (await firebaseGame.setTeamId(teamIdUpper)) {
+                    showGameContent(teamIdUpper);
+                    return;
+                }
+            }
+            
+            if (currentTeamId) {
+                // Team ID already set
+                showGameContent(currentTeamId);
+            } else {
+                // Show team setup section
+                document.getElementById('teamSetupSection').style.display = 'block';
+                document.getElementById('gameContent').style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html> 
