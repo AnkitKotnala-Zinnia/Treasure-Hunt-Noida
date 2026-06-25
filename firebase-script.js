@@ -852,7 +852,11 @@ function showSequenceError(taskNumber) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize admin dashboard if on admin page
-    if (window.location.pathname.includes('admin.html')) {
+    if (
+        window.location.pathname.includes('admin.html') &&
+        !window.adminDashboardHandlesRealtime &&
+        (!window.isAdminAuthenticated || window.isAdminAuthenticated())
+    ) {
         initializeAdminDashboard();
     }
 });

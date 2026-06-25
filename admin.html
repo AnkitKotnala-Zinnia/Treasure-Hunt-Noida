@@ -4,17 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Pride Treasure Hunt</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script>
+        window.adminDashboardHandlesRealtime = true;
+        window.ADMIN_AUTH_KEY = 'treasureHuntAdminAuthenticated';
+        window.isAdminAuthenticated = function() {
+            return sessionStorage.getItem(window.ADMIN_AUTH_KEY) === 'true';
+        };
+    </script>
     
 </head>
 <body>
-    <div class="container">
+    <div class="container admin-login-container" id="adminLogin" hidden>
+        <div class="admin-login-card">
+            <h1><span class="pride-flag" aria-hidden="true"></span>Admin Login</h1>
+            <form id="adminLoginForm" class="admin-login-form">
+                <div class="form-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" autocomplete="current-password" required>
+                </div>
+                <p class="admin-login-error" id="adminLoginError" aria-live="polite"></p>
+                <button type="submit">Login</button>
+                <button type="button" onclick="goHome()" class="btn-secondary">Home</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container admin-dashboard" id="adminDashboard" hidden>
         <h1><span class="pride-flag" aria-hidden="true"></span>Pride Hunt Admin
             <span class="real-time-indicator">LIVE</span>
             <span id="firebase-status" class="firebase-status">Connecting...</span>
@@ -24,6 +50,7 @@
             <button onclick="refreshData()" class="btn-refresh">Refresh</button>
             <button onclick="clearAllData()" class="btn-clear">Clear All Data</button>
             <button onclick="exportData()" class="btn-export">Export Data</button>
+            <button onclick="logoutAdmin()" class="btn-secondary">Logout</button>
             <button onclick="goHome()" class="btn-secondary">Home</button>
         </div>
         
@@ -69,10 +96,80 @@
         </div>
     </div>
     
-    <script src="firebase-script.js?v=2"></script>
+    <script src="firebase-script.js?v=3"></script>
     <script>
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'Admin@1245';
+        let adminUnsubscribe = null;
+
+        function showAdminLogin() {
+            const login = document.getElementById('adminLogin');
+            const dashboard = document.getElementById('adminDashboard');
+            if (login) login.hidden = false;
+            if (dashboard) dashboard.hidden = true;
+
+            if (adminUnsubscribe) {
+                adminUnsubscribe();
+                adminUnsubscribe = null;
+            }
+
+            const usernameInput = document.getElementById('adminUsername');
+            if (usernameInput) usernameInput.focus();
+        }
+
+        async function showAdminDashboard() {
+            const login = document.getElementById('adminLogin');
+            const dashboard = document.getElementById('adminDashboard');
+            if (login) login.hidden = true;
+            if (dashboard) dashboard.hidden = false;
+
+            updateFirebaseStatus(false);
+            await refreshData();
+
+            if (!adminUnsubscribe) {
+                adminUnsubscribe = firebaseGame.listenToTeamUpdates(teams => {
+                    updateFirebaseStatus(true);
+                    updateLeaderboard(teams);
+                    updateStatistics(teams);
+                });
+            }
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+
+            const usernameInput = document.getElementById('adminUsername');
+            const passwordInput = document.getElementById('adminPassword');
+            const errorElement = document.getElementById('adminLoginError');
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                sessionStorage.setItem(window.ADMIN_AUTH_KEY, 'true');
+                errorElement.textContent = '';
+                passwordInput.value = '';
+                showAdminDashboard();
+                return;
+            }
+
+            errorElement.textContent = 'Invalid username or password.';
+            passwordInput.select();
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem(window.ADMIN_AUTH_KEY);
+            showAdminLogin();
+        }
+
+        function requireAdmin() {
+            if (window.isAdminAuthenticated()) return true;
+            showAdminLogin();
+            return false;
+        }
+
         function updateFirebaseStatus(connected) {
             const statusElement = document.getElementById('firebase-status');
+            if (!statusElement) return;
             if (connected) {
                 statusElement.textContent = 'Connected';
                 statusElement.classList.add('connected');
@@ -83,6 +180,8 @@
         }
         
         async function refreshData() {
+            if (!requireAdmin()) return;
+
             try {
                 updateFirebaseStatus(true);
                 const teams = await firebaseGame.getAllTeams();
@@ -95,6 +194,8 @@
         }
         
         async function clearAllData() {
+            if (!requireAdmin()) return;
+
             const success = await firebaseGame.clearAllData();
             if (success) {
                 refreshData();
@@ -102,6 +203,8 @@
         }
         
         async function exportData() {
+            if (!requireAdmin()) return;
+
             await firebaseGame.exportData();
         }
         
@@ -109,16 +212,16 @@
             window.location.href = 'index.html';
         }
         
-        window.onload = function() {
-            updateFirebaseStatus(false);
-            refreshData();
-            
-            firebaseGame.listenToTeamUpdates(teams => {
-                updateFirebaseStatus(true);
-                updateLeaderboard(teams);
-                updateStatistics(teams);
-            });
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('adminLoginForm');
+            if (loginForm) loginForm.addEventListener('submit', handleAdminLogin);
+
+            if (window.isAdminAuthenticated()) {
+                showAdminDashboard();
+            } else {
+                showAdminLogin();
+            }
+        });
     </script>
 </body>
 </html>
